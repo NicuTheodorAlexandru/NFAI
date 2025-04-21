@@ -41,7 +41,7 @@ NFAI is a native .NET inference engine for [GGUF](https://github.com/ggerganov/g
 
 ## Example
 
-Below is a minimal example using the provided `Program.cs`:
+Below is a minimal example from `Program.cs`:
 
 ```csharp
 // parse the GGUF file
