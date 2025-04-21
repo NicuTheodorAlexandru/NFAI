@@ -60,6 +60,11 @@ public unsafe abstract class ShaderWrapper(Vk vk, Device device, VulkanBufferMan
         string spvPath = $"Shader\\{shaderFileName}.spv";
         string compPath = $"Shader\\{shaderFileName}.comp";
 
+        if (Directory.Exists("Shader") == false)
+        {
+            Directory.CreateDirectory("Shader");
+        }
+
         // 1) If the .spv file doesn’t exist, try to compile the .comp file using glslangValidator.
         if (!File.Exists(spvPath))
         {
