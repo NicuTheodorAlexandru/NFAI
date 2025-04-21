@@ -10,6 +10,9 @@
 .vs/*
 .vscode/*
 
+NFAI/Shader/*.spv
+NFAI/Shader/*.comp
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
