@@ -33,13 +33,13 @@ public abstract class AbstractComputeCollection
         }
     }
 
-    protected async IAsyncEnumerable<byte[]> GetDataRaw()
+    protected IEnumerable<byte[]> GetDataRaw()
     {
         DataStream.Seek(offset, SeekOrigin.Begin);
         const int batchSizeInBytes = 1024 * 1024 * 10; // 100MB batch size, adjust as needed
         int itemsPerBatch = batchSizeInBytes;
         if (itemsPerBatch < 1) itemsPerBatch = 1;
-        
+
         var current = 0ul;
         var total = Length * TypeSize;
         // Read the entire batch
@@ -49,7 +49,7 @@ public abstract class AbstractComputeCollection
             // Calculate remaining items and adjust batch size if needed
             var itemsToRead = Math.Min(itemsPerBatch, (int)(total - current));
             var batchBuffer = new byte[itemsToRead];
-            
+
             try
             {
                 DataStream.ReadExactly(batchBuffer, 0, itemsToRead);
@@ -61,7 +61,7 @@ public abstract class AbstractComputeCollection
             current += (ulong)itemsToRead;
             if (TypeSize != 2)
             {
-                yield return [..batchBuffer];
+                yield return [.. batchBuffer];
             }
             else
             {
@@ -73,7 +73,7 @@ public abstract class AbstractComputeCollection
                     var bytes = BitConverter.GetBytes(f);
                     Array.Copy(bytes, 0, newBatchBuffer, j * 4, bytes.Length); // Copy float bytes to newBatchBuffer
                 }
-                yield return [..newBatchBuffer];
+                yield return [.. newBatchBuffer];
             }
         }
     }

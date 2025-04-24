@@ -130,13 +130,11 @@ public class VulkanBufferManager : IDisposable
     public void UploadData<T>(ref DeviceMemory memory, ComputeCollection<T> data) where T : struct
     {
         var queue = new ConcurrentQueue<byte[]>();
-        var t = Task.Run(async () =>
+        var t = Task.Run(() =>
         {
-            var enumerator = data.GetDataRaw().GetAsyncEnumerator();
-            // Read the data in batches
-            while (await enumerator.MoveNextAsync())
+            foreach (var item in data.GetDataRaw())
             {
-                queue.Enqueue(enumerator.Current);
+                queue.Enqueue(item);
             }
         });
         ulong dataSize = data.Length * (ulong)Unsafe.SizeOf<T>();
