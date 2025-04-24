@@ -68,8 +68,6 @@ public unsafe abstract class ShaderWrapper(Vk vk, Device device, VulkanBufferMan
         // 1) If the .spv file doesn’t exist, try to compile the .comp file using glslangValidator.
         if (!File.Exists(spvPath))
         {
-            Console.WriteLine($"[INFO] {spvPath} not found. Attempting to compile {compPath}...");
-
             if (!File.Exists(compPath))
             {
                 throw new FileNotFoundException($"Shader source .comp file not found: {compPath}");
@@ -97,11 +95,8 @@ public unsafe abstract class ShaderWrapper(Vk vk, Device device, VulkanBufferMan
             if (process.ExitCode != 0)
             {
                 string err = process.StandardOutput.ReadToEnd();
-                Console.WriteLine($"Failed to compile shader {compPath} -> {spvPath}.\nError:\n{err}");
                 throw new Exception($"Failed to compile shader {compPath} -> {spvPath}.");
             }
-
-            Console.WriteLine($"[INFO] Successfully compiled {compPath} -> {spvPath}");
         }
 
         // 2) Now read the compiled SPIR-V bytes from the .spv file

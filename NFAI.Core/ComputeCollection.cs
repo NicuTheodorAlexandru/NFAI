@@ -36,7 +36,7 @@ public class ComputeCollection<T>(Stream dataStream, ulong length, long offset) 
         return base.GetData<T>();
     }
 
-    public new IEnumerable<byte> GetDataRaw()
+    public new IAsyncEnumerable<byte[]> GetDataRaw()
     {
         return base.GetDataRaw();
     }

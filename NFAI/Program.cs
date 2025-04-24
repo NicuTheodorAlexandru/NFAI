@@ -1,10 +1,13 @@
-﻿// parse the GGUF file
+﻿using System.Diagnostics;
 using Microsoft.Extensions.AI;
 using NFAI.GGUF;
 
 var path = Environment.GetEnvironmentVariable("GGUF_PATH") ?? throw new ArgumentNullException("GGUF_PATH", "GGUF_PATH environment variable is not set.");
 var parser = new Parser();
+var sw = Stopwatch.StartNew();
 var model = parser.Parse(path);
+sw.Stop();
+Console.WriteLine($"Loaded model in {sw.ElapsedMilliseconds}ms");
 Console.WriteLine("Enter 'quit' to quit: ");
 
 var input = string.Empty;
