@@ -2,7 +2,7 @@ namespace NFAI.Models.Llama3;
 
 public static class SamplingUtils
 {
-    public static uint TopP(float[] values, float temperature = 0.6f, float topP = 0.9f, int topK = 40)
+    public static uint TopP(float[] values, float temperature = 0.5f, float topP = 0.95f, int topK = 40)
     {
         List<float> scaledLogits = values.Select(l => l / temperature).ToList();
         List<float> probs = Softmax(scaledLogits);

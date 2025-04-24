@@ -1,5 +1,6 @@
 ﻿using NFAI.Core;
 using Silk.NET.Vulkan;
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using Buffer = Silk.NET.Vulkan.Buffer;
 
@@ -128,6 +129,14 @@ public class VulkanBufferManager : IDisposable
     /// </summary>
     public void UploadData<T>(ref DeviceMemory memory, ComputeCollection<T> data) where T : struct
     {
+        var queue = new ConcurrentQueue<byte[]>();
+        var t = Task.Run(() =>
+        {
+            foreach (var item in data.GetDataRaw())
+            {
+                queue.Enqueue(item);
+            }
+        });
         ulong dataSize = data.Length * (ulong)Unsafe.SizeOf<T>();
         unsafe
         {
@@ -144,35 +153,37 @@ public class VulkanBufferManager : IDisposable
             {
                 // 2. Copy data as a batch rather than byte-by-byte
                 byte* dst = (byte*)mappedMemory;
-                ulong index = 0;
                 
                 // Create a temporary array to batch process data
-                T[] tempBuffer = new T[1024]; // Process in chunks
-                int count = 0;
-                
-                foreach (var item in data.GetData())
+                var sleepTime = 5;
+                while(!t.IsCompleted)
                 {
-                    tempBuffer[count++] = item;
-                    
-                    // When buffer is full or this is the last item, copy to GPU memory
-                    if (count == tempBuffer.Length || index + (ulong)count >= data.Length)
+                    if (queue.TryDequeue(out var batch))
                     {
-                        fixed (T* srcPtr = tempBuffer)
+                        // Copy the batch to the mapped memory
+                        fixed (byte* src = batch)
                         {
-                            ulong bytesToCopy = (ulong)count * (ulong)Unsafe.SizeOf<T>();
-                            System.Buffer.MemoryCopy(srcPtr, dst + index * (ulong)Unsafe.SizeOf<T>(), 
-                                                    bytesToCopy, bytesToCopy);
+                            Unsafe.CopyBlock(dst, src, (uint)batch.Length);
                         }
-                        
-                        index += (ulong)count;
-                        count = 0;
-                        
-                        if (index >= data.Length)
-                        {
-                            break;
-                        }
+                        dst += batch.Length;
+                    }
+                    else
+                    {
+                        // Sleep for a short time to avoid busy waiting
+                        Thread.Sleep(sleepTime);
+                        continue;
                     }
                 }
+
+                if (queue.TryDequeue(out var b))
+                {
+                    // Copy the batch to the mapped memory
+                    fixed (byte* src = b)
+                    {
+                        Unsafe.CopyBlock(dst, src, (uint)b.Length);
+                    }
+                }
+
             }
             finally
             {
