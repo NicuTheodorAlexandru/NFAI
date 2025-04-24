@@ -110,8 +110,6 @@ public class Model : IChatClient
     {
         var tokenIds = tokenizer.Tokenize(prompt, addBos: firstInput);
         firstInput = false;
-        uint lastToken = 0u;
-        var idx = 0u;
         foreach (var token in tokenIds)
         {
             using var ms = new MemoryStream();
@@ -133,24 +131,21 @@ public class Model : IChatClient
             }
 
             outputNormLayer.Compute();
-            var outputNormOutput = outputNormLayer.GetOutputs();
 
             lmHead.Compute();
-            var lmHeadOutput = lmHead.GetOutputs();
-
-            var tk = SamplingUtils.TopP(lmHeadOutput);
-            lastToken = tk;
-            idx++;
         }
 
-        var outputTokens = new List<uint> { lastToken };
-        yield return tokenizer.Detokenize([lastToken]);
+        var lmHeadOutput = lmHead.GetOutputs();
+
+        var tk = SamplingUtils.TopP(lmHeadOutput);
+        var outputTokens = new List<uint> { tk };
+        yield return tokenizer.Detokenize([tk]);
         // initial input was given, start feeding output tokens back in
-        while (lastToken != tokenizer.EosTokenId)
+        while (tk != tokenizer.EosTokenId)
         {
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
-            writer.Write(lastToken);
+            writer.Write(tk);
             var input = new ComputeCollection<uint>(ms, 1, 0)
             {
                 Shape = [1],
@@ -179,11 +174,11 @@ public class Model : IChatClient
 
             var tokenId = SamplingUtils.TopP(lmHead.GetOutputs());
             var predictedToken = tokenizer.Detokenize([tokenId]);
-            lastToken = tokenId;
+            tk = tokenId;
             
-            outputTokens.Add(lastToken);
+            outputTokens.Add(tk);
 
-            if (lastToken != tokenizer.EosTokenId)
+            if (tk != tokenizer.EosTokenId)
                 yield return predictedToken;
         }
     }
