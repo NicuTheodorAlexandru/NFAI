@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\NFAI.Models\NFAI.Models.csproj" />
     <ProjectReference Include="..\NFAI.Vulkan.Shaders\NFAI.Vulkan.Shaders.csproj" />
     <ProjectReference Include="..\NFAI.Vulkan\NFAI.Vulkan.csproj" />
   </ItemGroup>

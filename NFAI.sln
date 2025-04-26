@@ -10,8 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NFAI.Extensions.AI", "NFAI.Extensions.AI\NFAI.Extensions.AI.csproj", "{6CCDCB05-8568-496F-A171-FC0DFA9E31B2}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NFAI.Vulkan", "NFAI.Vulkan\NFAI.Vulkan.csproj", "{5F5B6526-C7D5-4480-BC43-9F01A68684E0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NFAI.Models.Llama3", "NFAI.Models.Llama3\NFAI.Models.Llama3.csproj", "{8F1A17F6-75FA-4288-81AB-700735EFDB60}"
@@ -21,6 +19,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NFAI.Core", "NFAI.Core\NFAI.Core.csproj", "{58E2AB39-C7CD-4188-A836-37F1C418BEEE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NFAI.Vulkan.Shaders", "NFAI.Vulkan.Shaders\NFAI.Vulkan.Shaders.csproj", "{A75CA38C-E41D-4043-AE48-D7358BC61AAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NFAI.Models", "NFAI.Models\NFAI.Models.csproj", "{50B7E221-35A1-47F5-97D8-A1957A522AC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,18 +44,6 @@ Global
 		{2A158CFB-8A13-49DF-8FC8-0D9482C9C975}.Release|x64.Build.0 = Release|x64
 		{2A158CFB-8A13-49DF-8FC8-0D9482C9C975}.Release|x86.ActiveCfg = Release|Any CPU
 		{2A158CFB-8A13-49DF-8FC8-0D9482C9C975}.Release|x86.Build.0 = Release|Any CPU
-		{6CCDCB05-8568-496F-A171-FC0DFA9E31B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6CCDCB05-8568-496F-A171-FC0DFA9E31B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6CCDCB05-8568-496F-A171-FC0DFA9E31B2}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{6CCDCB05-8568-496F-A171-FC0DFA9E31B2}.Debug|x64.Build.0 = Debug|Any CPU
-		{6CCDCB05-8568-496F-A171-FC0DFA9E31B2}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{6CCDCB05-8568-496F-A171-FC0DFA9E31B2}.Debug|x86.Build.0 = Debug|Any CPU
-		{6CCDCB05-8568-496F-A171-FC0DFA9E31B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6CCDCB05-8568-496F-A171-FC0DFA9E31B2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6CCDCB05-8568-496F-A171-FC0DFA9E31B2}.Release|x64.ActiveCfg = Release|Any CPU
-		{6CCDCB05-8568-496F-A171-FC0DFA9E31B2}.Release|x64.Build.0 = Release|Any CPU
-		{6CCDCB05-8568-496F-A171-FC0DFA9E31B2}.Release|x86.ActiveCfg = Release|Any CPU
-		{6CCDCB05-8568-496F-A171-FC0DFA9E31B2}.Release|x86.Build.0 = Release|Any CPU
 		{5F5B6526-C7D5-4480-BC43-9F01A68684E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5F5B6526-C7D5-4480-BC43-9F01A68684E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F5B6526-C7D5-4480-BC43-9F01A68684E0}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -116,6 +104,18 @@ Global
 		{A75CA38C-E41D-4043-AE48-D7358BC61AAD}.Release|x64.Build.0 = Release|Any CPU
 		{A75CA38C-E41D-4043-AE48-D7358BC61AAD}.Release|x86.ActiveCfg = Release|Any CPU
 		{A75CA38C-E41D-4043-AE48-D7358BC61AAD}.Release|x86.Build.0 = Release|Any CPU
+		{50B7E221-35A1-47F5-97D8-A1957A522AC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50B7E221-35A1-47F5-97D8-A1957A522AC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50B7E221-35A1-47F5-97D8-A1957A522AC1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{50B7E221-35A1-47F5-97D8-A1957A522AC1}.Debug|x64.Build.0 = Debug|Any CPU
+		{50B7E221-35A1-47F5-97D8-A1957A522AC1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{50B7E221-35A1-47F5-97D8-A1957A522AC1}.Debug|x86.Build.0 = Debug|Any CPU
+		{50B7E221-35A1-47F5-97D8-A1957A522AC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50B7E221-35A1-47F5-97D8-A1957A522AC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50B7E221-35A1-47F5-97D8-A1957A522AC1}.Release|x64.ActiveCfg = Release|Any CPU
+		{50B7E221-35A1-47F5-97D8-A1957A522AC1}.Release|x64.Build.0 = Release|Any CPU
+		{50B7E221-35A1-47F5-97D8-A1957A522AC1}.Release|x86.ActiveCfg = Release|Any CPU
+		{50B7E221-35A1-47F5-97D8-A1957A522AC1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
