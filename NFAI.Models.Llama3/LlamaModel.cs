@@ -7,7 +7,7 @@ using NFAI.Core;
 
 namespace NFAI.Models.Llama3;
 
-public class Model : IChatClient
+public class LlamaModel : IInferenceProvider
 {
     private readonly Tokenizer tokenizer;
     private readonly TokenEmbedShader<uint, float, float> embedShader;
@@ -15,9 +15,10 @@ public class Model : IChatClient
     private readonly MatrixMultiplyShader<float, float, float> lmHead;
     private readonly List<TransformerBlock> transformerBlocks = [];
     private bool firstInput = true;
-    private readonly string modelName;
 
-    public Model(Vk vk, Device device, VulkanBufferManager vulkanBufferManager, Dictionary<string, object> metadata, List<AbstractComputeCollection> tensors, uint contextSize = 1024u)
+    public string ModelName { get; init; }
+
+    public LlamaModel(Vk vk, Device device, VulkanBufferManager vulkanBufferManager, Dictionary<string, object> metadata, List<AbstractComputeCollection> tensors, uint contextSize = 1024u)
     {
         var bosToken = (UInt32)metadata["tokenizer.ggml.bos_token_id"];
         var eosToken = (UInt32)metadata["tokenizer.ggml.eos_token_id"];
@@ -30,7 +31,7 @@ public class Model : IChatClient
         var keyLength = (uint)metadata["llama.attention.key_length"];
         var valueLength = (uint)metadata["llama.attention.value_length"];
         var transformerBlockCount = (uint)metadata["llama.block_count"];
-        modelName = metadata["general.name"].ToString() ?? "unknown";
+        ModelName = metadata["general.name"].ToString() ?? "unknown";
         var alignment = 32u;
         if (metadata.TryGetValue("general.alignment", out object? value))
         {
@@ -72,17 +73,6 @@ public class Model : IChatClient
         throw new NotImplementedException();
     }
 
-    public async Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default)
-    {
-        var res = await GetStreamingResponseAsync(messages, options, cancellationToken).ToChatResponseAsync(cancellationToken);
-        return res;
-    }
-
-    public object? GetService(Type serviceType, object? serviceKey = null)
-    {
-        throw new NotImplementedException();
-    }
-
     public async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var messageId = Guid.NewGuid().ToString();
@@ -97,7 +87,7 @@ public class Model : IChatClient
                 ChatThreadId = null,
                 AdditionalProperties = null,
                 FinishReason = null,
-                ModelId = modelName,
+                ModelId = ModelName,
                 MessageId = messageId,
                 RawRepresentation = null,
                 Contents = [new TextContent(messagePart)],

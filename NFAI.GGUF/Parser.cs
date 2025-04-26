@@ -1,9 +1,7 @@
 ﻿using System.Text;
-using NFAI.Vulkan;
-using Silk.NET.Vulkan;
-using Microsoft.Extensions.AI;
 using NFAI.Core;
 using NFAI.Models.Llama3;
+using NFAI.Models;
 
 namespace NFAI.GGUF;
 
@@ -14,44 +12,36 @@ public class Parser
     private readonly List<(string Name, List<UInt64> Shape, string DataType, UInt64 offset, int constants)> tensorInfo = [];
     public Tokenizer? Tokenizer { get; private set; }
     private uint alignment = 32u; // Default alignment
-    private readonly Vk vk;
-    private readonly Device device;
-    private readonly VulkanBufferManager vulkanBufferManager;
-    private readonly Instance instance;
-    private readonly PhysicalDevice physicalDevice;
+    private readonly IEnumerable<AbstractModelFactory> modelFactories;
 
-    public Parser()
+    public Parser(IEnumerable<AbstractModelFactory> modelFactories)
     {
-        // 1) Obtain the Vulkan API interface
-        vk = Vk.GetApi();
-
-        // 2) (Pseudo) Create a Vulkan Instance
-        //    In real code you must specify correct layers/extensions. 
-        instance = VulkanHelper.CreateVulkanInstance(vk);
-
-        // 3) (Pseudo) Select a Physical Device
-        physicalDevice = VulkanHelper.PickPhysicalDevice(vk, instance);
-
-        // 4) (Pseudo) Create a Logical Device (with compute queue)
-        device = VulkanHelper.CreateLogicalDevice(vk, physicalDevice);
-        // 5) Create our buffer manager (for allocations and command pool)
-        vulkanBufferManager = new VulkanBufferManager(vk, device, physicalDevice);
+        this.modelFactories = modelFactories;
     }
 
-    public IChatClient Parse(string path)
+    public IInferenceProvider Parse(ModelOptions modelOptions)
     {
-        if (!File.Exists(path))
-            throw new FileNotFoundException($"File not found: {path}");
+        if (!File.Exists(modelOptions.GGUFPath))
+            throw new FileNotFoundException($"File not found: {modelOptions.GGUFPath}");
         
-        using var binaryReader = new BinaryReader(File.OpenRead(path));
+        using var binaryReader = new BinaryReader(File.OpenRead(modelOptions.GGUFPath));
         var tensorCount = ReadHeader(binaryReader);
         ReadMetadata(binaryReader);
         ReadTensors(binaryReader, tensorCount);
 
-        if (!metadata.TryGetValue("general.alignment", out object? value))
+        if (metadata.TryGetValue("general.alignment", out object? value))
             alignment = value is uint uintValue ? uintValue : alignment;
 
-        return new Model(vk, device, vulkanBufferManager, metadata, ReadTensors(binaryReader), 1024u);
+        var tensors = ReadTensors(binaryReader);
+        foreach (var factory in modelFactories)
+        {
+            if (factory.TryCreate(metadata, tensors, modelOptions, out var model) && model != null)
+            {
+                return model;
+            }
+        }
+
+        throw new Exception("No suitable model factory found for the GGUF file.");
     }
 
     private List<AbstractComputeCollection> ReadTensors(BinaryReader reader)

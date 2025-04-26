@@ -1,25 +1,29 @@
-﻿using System.Diagnostics;
-using Microsoft.Extensions.AI;
+﻿using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using NFAI;
 using NFAI.GGUF;
+using NFAI.Models;
+using NFAI.Models.Llama3;
 
-var path = Environment.GetEnvironmentVariable("GGUF_PATH") ?? throw new ArgumentNullException("GGUF_PATH", "GGUF_PATH environment variable is not set.");
-var parser = new Parser();
-var sw = Stopwatch.StartNew();
-var model = parser.Parse(path);
-sw.Stop();
-Console.WriteLine($"Loaded model in {sw.ElapsedMilliseconds}ms");
-Console.WriteLine("Enter 'quit' to quit: ");
+var builder = Host.CreateDefaultBuilder(args);
 
-var input = string.Empty;
-while (input != "quit")
+builder.ConfigureServices((context, services) =>
 {
-    Console.Write("User: ");
-    input = Console.ReadLine() ?? string.Empty;
-    if (input == "quit") break;
-    Console.Write("Assistant: ");
-    await foreach(var part in model.GetStreamingResponseAsync(input, default))
+    services.AddLogging();
+    services.Configure<ModelOptions>(context.Configuration.GetSection("ModelOptions"));
+    services.AddSingleton<AbstractModelFactory, LlamaModelFactory>();
+    services.AddSingleton<Parser>();
+    services.AddSingleton(sp => 
     {
-        Console.Write(part);
-    }
-    Console.WriteLine();
-}
+        var options = sp.GetRequiredService<IOptions<ModelOptions>>();
+        var parser = sp.GetRequiredService<Parser>();
+        return parser.Parse(options.Value);
+    });
+    services.AddSingleton<IChatClient, GenericChatClient>();
+    services.AddHostedService<ChatService>();
+});
+
+var host = builder.Build();
+await host.RunAsync();
